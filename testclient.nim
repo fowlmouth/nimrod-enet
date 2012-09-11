@@ -23,24 +23,24 @@ if peer == nil:
 block:
   var bConnected = false
   while not bConnected:
-    if client.hostService(addr event, 5000) > 0 and event.kind == EvtConnect:
+    if client.hostService(event, 5000) > 0 and event.kind == EvtConnect:
       echo "Connected"
       bConnected = true
     else:
       echo "Connection failed"
       quit 0
 
-
-while client.hostService(addr event, 1000) >= 0:
+var runServer = true
+while client.hostService(event, 1000) >= 0 and runServer:
   case event.kind
   of EvtReceive:
     echo "Recvd ($1) $2 ".format(
       event.packet.dataLength,
       event.packet.data)
-    case 
   of EvtDisconnect:
     echo "Disconnected"
     event.peer.data = nil
+    runServer = false
   of EvtNone: discard
   else:
     echo repr(event)

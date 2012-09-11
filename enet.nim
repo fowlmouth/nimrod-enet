@@ -494,7 +494,7 @@ proc connect*(host: PHost; address: ptr TAddress; a4: csize; a5: cuint): PPeer{.
   importc: "enet_host_connect", dynlib: Lib.}
 
 proc enet_host_check_events*(a2: ptr THost; a3: ptr TEvent): cint{.
-    importc: "enet_host_check_events", dynlib: Lib.}
+  importc: "enet_host_check_events", dynlib: Lib.}
 proc hostService*(host: PHost; event: var TEvent; timeout: cuint): cint{.
   importc: "enet_host_service", dynlib: Lib.}
 proc enet_host_flush*(a2: PHost){.
@@ -514,57 +514,57 @@ proc enet_host_bandwidth_throttle*(a2: ptr THost){.
 proc send*(a2: PPeer; a3: cuchar; a4: PPacket): cint{.
   importc: "enet_peer_send", dynlib: Lib.}
 proc enet_peer_receive*(a2: ptr TPeer; channelID: ptr cuchar): ptr TPacket{.
-    importc: "enet_peer_receive", dynlib: Lib.}
-proc enet_peer_ping*(a2: ptr TPeer){.importc: "enet_peer_ping", 
-    dynlib: Lib.}
-proc enet_peer_reset*(a2: ptr TPeer){.importc: "enet_peer_reset", 
-    dynlib: Lib.}
+  importc: "enet_peer_receive", dynlib: Lib.}
+proc enet_peer_ping*(a2: ptr TPeer){.
+  importc: "enet_peer_ping", dynlib: Lib.}
+proc enet_peer_reset*(a2: ptr TPeer){.
+  importc: "enet_peer_reset", dynlib: Lib.}
 proc enet_peer_disconnect*(a2: ptr TPeer; a3: cuint){.
-    importc: "enet_peer_disconnect", dynlib: Lib.}
+  importc: "enet_peer_disconnect", dynlib: Lib.}
 proc enet_peer_disconnect_now*(a2: ptr TPeer; a3: cuint){.
-    importc: "enet_peer_disconnect_now", dynlib: Lib.}
+  importc: "enet_peer_disconnect_now", dynlib: Lib.}
 proc enet_peer_disconnect_later*(a2: ptr TPeer; a3: cuint){.
-    importc: "enet_peer_disconnect_later", dynlib: Lib.}
+  importc: "enet_peer_disconnect_later", dynlib: Lib.}
 proc enet_peer_throttle_configure*(a2: ptr TPeer; a3: cuint; a4: cuint; 
                                    a5: cuint){.
-    importc: "enet_peer_throttle_configure", dynlib: Lib.}
+  importc: "enet_peer_throttle_configure", dynlib: Lib.}
 proc enet_peer_throttle*(a2: ptr TPeer; a3: cuint): cint{.
-    importc: "enet_peer_throttle", dynlib: Lib.}
+  importc: "enet_peer_throttle", dynlib: Lib.}
 proc enet_peer_reset_queues*(a2: ptr TPeer){.
-    importc: "enet_peer_reset_queues", dynlib: Lib.}
+  importc: "enet_peer_reset_queues", dynlib: Lib.}
 proc enet_peer_setup_outgoing_command*(a2: ptr TPeer; 
-    a3: ptr TOutgoingCommand){.importc: "enet_peer_setup_outgoing_command", 
-                                   dynlib: Lib.}
+    a3: ptr TOutgoingCommand){.
+  importc: "enet_peer_setup_outgoing_command", dynlib: Lib.}
 proc enet_peer_queue_outgoing_command*(a2: ptr TPeer; 
     a3: ptr TEnetProtocol; a4: ptr TPacket; a5: cuint; a6: cushort): ptr TOutgoingCommand{.
     importc: "enet_peer_queue_outgoing_command", dynlib: Lib.}
 proc enet_peer_queue_incoming_command*(a2: ptr TPeer; 
     a3: ptr TEnetProtocol; a4: ptr TPacket; a5: cuint): ptr TIncomingCommand{.
-    importc: "enet_peer_queue_incoming_command", dynlib: Lib.}
+  importc: "enet_peer_queue_incoming_command", dynlib: Lib.}
 proc enet_peer_queue_acknowledgement*(a2: ptr TPeer; a3: ptr TEnetProtocol; 
                                       a4: cushort): ptr TAcknowledgement{.
-    importc: "enet_peer_queue_acknowledgement", dynlib: Lib.}
-proc enet_peer_dispatch_incoming_unreliable_commands*(a2: ptr TPeer; 
-    a3: ptr TChannel){.importc: "enet_peer_dispatch_incoming_unreliable_commands", 
-                           dynlib: Lib.}
+  importc: "enet_peer_queue_acknowledgement", dynlib: Lib.}
+proc enet_peer_dispatch_incoming_unreliable_commands*(a2: ptr TPeer; a3: ptr TChannel){.
+  importc: "enet_peer_dispatch_incoming_unreliable_commands", dynlib: Lib.}
 proc enet_peer_dispatch_incoming_reliable_commands*(a2: ptr TPeer; 
-    a3: ptr TChannel){.importc: "enet_peer_dispatch_incoming_reliable_commands", 
+  a3: ptr TChannel){.importc: "enet_peer_dispatch_incoming_reliable_commands", 
                            dynlib: Lib.}
 proc enet_range_coder_create*(): pointer{.
-    importc: "enet_range_coder_create", dynlib: Lib.}
+  importc: "enet_range_coder_create", dynlib: Lib.}
 proc enet_range_coder_destroy*(a2: pointer){.
-    importc: "enet_range_coder_destroy", dynlib: Lib.}
+  importc: "enet_range_coder_destroy", dynlib: Lib.}
 proc enet_range_coder_compress*(a2: pointer; a3: ptr TEnetBuffer; a4: csize; 
                                 a5: csize; a6: ptr cuchar; a7: csize): csize{.
-    importc: "enet_range_coder_compress", dynlib: Lib.}
+  importc: "enet_range_coder_compress", dynlib: Lib.}
 proc enet_range_coder_decompress*(a2: pointer; a3: ptr cuchar; a4: csize; 
                                   a5: ptr cuchar; a6: csize): csize{.
-    importc: "enet_range_coder_decompress", dynlib: Lib.}
+  importc: "enet_range_coder_decompress", dynlib: Lib.}
 proc enet_protocol_command_size*(a2: cuchar): csize{.
-    importc: "enet_protocol_command_size", dynlib: Lib.}
+  importc: "enet_protocol_command_size", dynlib: Lib.}
 
 {.pop: cdecl.}
 
 from hashes import `!$`, `!&`, THash, hash
 proc hash*(x: TAddress): THash {.nimcall, noSideEffect.} =
   result = !$(hash(x.host.int32) !& hash(x.port.int16))
+
