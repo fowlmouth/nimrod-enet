@@ -231,7 +231,9 @@ type
     fragmentNumber*: cuint
     totalLength*: cuint
     fragmentOffset*: cuint
-
+  
+  ## this is incomplete; need helper templates or something
+  ## ENetProtocol
   TENetProtocol*{.pure, final.} = object 
     header*: TENetProtocolCommandHeader
 const 
@@ -272,6 +274,7 @@ when defined(Linux):
       data*: pointer
       dataLength*: csize
     TENetSocketSet* = Tfd_set
+  ## see if these are different on win32, if not then get rid of these
   template ENET_HOST_TO_NET_16*(value: expr): expr = 
     (htons(value))
   template ENET_HOST_TO_NET_32*(value: expr): expr = 
@@ -468,87 +471,98 @@ proc destroy*(socket: TEnetSocket){.
 proc select*(socket: TEnetSocket; a3: ptr TENetSocketSet; 
               a4: ptr TENetSocketSet; a5: cuint): cint{.
   importc: "enet_socketset_select", dynlib: Lib.}
+
 proc setHost*(address: PAddress; hostName: cstring): cint{.
   importc: "enet_address_set_host", dynlib: Lib.}
-proc getHostIP*(address: PAddress; hostName: cstring; nameLength: csize): cint{.
+proc getHostIP*(address: var TAddress; hostName: cstring; nameLength: csize): cint{.
   importc: "enet_address_get_host_ip", dynlib: Lib.}
-proc getHost*(address: ptr TAddress; hostName: cstring; nameLength: csize): cint{.
+proc getHost*(address: var TAddress; hostName: cstring; nameLength: csize): cint{.
   importc: "enet_address_get_host", dynlib: Lib.}
+
+## Call the above two funcs but trim the result string
+proc getHostIP*(address: var TAddress; hostName: var string; nameLength: csize): cint{.inline.} =
+  result = getHostIP(address, cstring(hostName), nameLength)
+  if result == 0:
+    hostName.setLen(len(cstring(hostName)))
+proc getHost*(address: var TAddress; hostName: var string; nameLength: csize): cint{.inline.} =
+  result = getHost(address, cstring(hostName), nameLength)
+  if result == 0:
+    hostName.setLen(len(cstring(hostName)))
 
 proc createPacket*(data: pointer; len: csize; flag: TPacketFlag): PPacket{.
   importc: "enet_packet_create", dynlib: Lib.}
-proc destroy*(a2: PPacket){.
+proc destroy*(packet: PPacket){.
   importc: "enet_packet_destroy", dynlib: Lib.}
-proc resize*(a2: ptr TPacket; a3: csize): cint{.
+proc resize*(packet: PPacket; a3: csize): cint{.
   importc: "enet_packet_resize", dynlib: Lib.}
 
-proc crc32*(a2: ptr TEnetBuffer; a3: csize): cuint{.
+proc crc32*(buffer: ptr TEnetBuffer; a3: csize): cuint{.
   importc: "enet_crc32", dynlib: Lib.}
 
-proc createHost*(address: ptr TAddress; a3, a4: csize; a5, a6: cuint): ptr THost{.
+proc createHost*(address: ptr TAddress; a3, a4: csize; a5, a6: cuint): PHost{.
   importc: "enet_host_create", dynlib: Lib.}
-
 proc destroy*(host: PHost){.
   importc: "enet_host_destroy", dynlib: Lib.}
 proc connect*(host: PHost; address: ptr TAddress; a4: csize; a5: cuint): PPeer{.
   importc: "enet_host_connect", dynlib: Lib.}
 
-proc enet_host_check_events*(a2: ptr THost; a3: ptr TEvent): cint{.
+proc checkEvents*(host: PHost; event: var TEvent): cint{.
   importc: "enet_host_check_events", dynlib: Lib.}
 proc hostService*(host: PHost; event: var TEvent; timeout: cuint): cint{.
   importc: "enet_host_service", dynlib: Lib.}
-proc enet_host_flush*(a2: PHost){.
+proc flush*(host: PHost){.
   importc: "enet_host_flush", dynlib: Lib.}
-proc broadcast*(a2: ptr THost; a3: cuchar; a4: ptr TPacket){.
+proc broadcast*(host: PHost; a3: cuchar; a4: ptr TPacket){.
   importc: "enet_host_broadcast", dynlib: Lib.}
-proc enet_host_compress*(a2: PHost; a3: ptr TCompressor){.
+proc compress*(host: PHost; a3: ptr TCompressor){.
   importc: "enet_host_compress", dynlib: Lib.}
-proc enet_host_compress_with_range_coder*(host: ptr THost): cint{.
+proc compressWithRangeCoder*(host: PHost): cint{.
   importc: "enet_host_compress_with_range_coder", dynlib: Lib.}
-proc enet_host_channel_limit*(a2: PHost; a3: csize){.
+proc channelLimit*(host: PHost; a3: csize){.
   importc: "enet_host_channel_limit", dynlib: Lib.}
-proc enet_host_bandwidth_limit*(a2: PHost; a3: cuint; a4: cuint){.
+proc bandwidthLimit*(host: PHost; a3, a4: cuint){.
   importc: "enet_host_bandwidth_limit", dynlib: Lib.}
-proc enet_host_bandwidth_throttle*(a2: ptr THost){.
+proc bandwidthThrottle*(host: PHost){.
   importc: "enet_host_bandwidth_throttle", dynlib: Lib.}
-proc send*(a2: PPeer; a3: cuchar; a4: PPacket): cint{.
+
+
+proc send*(peer: PPeer; a3: cuchar; a4: PPacket): cint{.
   importc: "enet_peer_send", dynlib: Lib.}
-proc enet_peer_receive*(a2: ptr TPeer; channelID: ptr cuchar): ptr TPacket{.
+proc receive*(peer: PPeer; channelID: ptr cuchar): ptr TPacket{.
   importc: "enet_peer_receive", dynlib: Lib.}
-proc enet_peer_ping*(a2: ptr TPeer){.
+proc ping*(peer: PPeer){.
   importc: "enet_peer_ping", dynlib: Lib.}
-proc enet_peer_reset*(a2: ptr TPeer){.
+proc reset*(peer: PPeer){.
   importc: "enet_peer_reset", dynlib: Lib.}
-proc enet_peer_disconnect*(a2: ptr TPeer; a3: cuint){.
+proc disconnect*(peer: PPeer; a3: cuint){.
   importc: "enet_peer_disconnect", dynlib: Lib.}
-proc enet_peer_disconnect_now*(a2: ptr TPeer; a3: cuint){.
+proc disconnectNow*(peer: PPeer; a3: cuint){.
   importc: "enet_peer_disconnect_now", dynlib: Lib.}
-proc enet_peer_disconnect_later*(a2: ptr TPeer; a3: cuint){.
+proc disconnectLater*(peer: PPeer; a3: cuint){.
   importc: "enet_peer_disconnect_later", dynlib: Lib.}
-proc enet_peer_throttle_configure*(a2: ptr TPeer; a3: cuint; a4: cuint; 
-                                   a5: cuint){.
+proc throttle_configure*(peer: PPeer; a3, a4, a5: cuint){.
   importc: "enet_peer_throttle_configure", dynlib: Lib.}
-proc enet_peer_throttle*(a2: ptr TPeer; a3: cuint): cint{.
+proc throttle*(peer: PPeer; a3: cuint): cint{.
   importc: "enet_peer_throttle", dynlib: Lib.}
-proc enet_peer_reset_queues*(a2: ptr TPeer){.
+proc resetQueues*(peer: PPeer){.
   importc: "enet_peer_reset_queues", dynlib: Lib.}
-proc enet_peer_setup_outgoing_command*(a2: ptr TPeer; 
-    a3: ptr TOutgoingCommand){.
+proc setupOutgoingCommand*(peer: PPeer; a3: ptr TOutgoingCommand){.
   importc: "enet_peer_setup_outgoing_command", dynlib: Lib.}
-proc enet_peer_queue_outgoing_command*(a2: ptr TPeer; 
-    a3: ptr TEnetProtocol; a4: ptr TPacket; a5: cuint; a6: cushort): ptr TOutgoingCommand{.
-    importc: "enet_peer_queue_outgoing_command", dynlib: Lib.}
-proc enet_peer_queue_incoming_command*(a2: ptr TPeer; 
-    a3: ptr TEnetProtocol; a4: ptr TPacket; a5: cuint): ptr TIncomingCommand{.
+proc queueOutgoingCommand*(peer: PPeer; a3: ptr TEnetProtocol; a4: PPacket; 
+                            a5: cuint; a6: cushort): ptr TOutgoingCommand{.
+  importc: "enet_peer_queue_outgoing_command", dynlib: Lib.}
+proc queueIncomingCommand*(peer: PPeer; a3: ptr TEnetProtocol; 
+                          a4: ptr TPacket; a5: cuint): ptr TIncomingCommand{.
   importc: "enet_peer_queue_incoming_command", dynlib: Lib.}
-proc enet_peer_queue_acknowledgement*(a2: ptr TPeer; a3: ptr TEnetProtocol; 
-                                      a4: cushort): ptr TAcknowledgement{.
+proc queueAcknowledgement*(peer: PPeer; a3: ptr TEnetProtocol; 
+                                    a4: cushort): ptr TAcknowledgement{.
   importc: "enet_peer_queue_acknowledgement", dynlib: Lib.}
-proc enet_peer_dispatch_incoming_unreliable_commands*(a2: ptr TPeer; a3: ptr TChannel){.
+proc dispatchIncomingUnreliableCommands*(peer: PPeer; a3: ptr TChannel){.
   importc: "enet_peer_dispatch_incoming_unreliable_commands", dynlib: Lib.}
-proc enet_peer_dispatch_incoming_reliable_commands*(a2: ptr TPeer; 
-  a3: ptr TChannel){.importc: "enet_peer_dispatch_incoming_reliable_commands", 
-                           dynlib: Lib.}
+proc dispatchIncomingReliableCommands*(peer: PPeer; a3: ptr TChannel){.
+  importc: "enet_peer_dispatch_incoming_reliable_commands", dynlib: Lib.}
+
+
 proc enet_range_coder_create*(): pointer{.
   importc: "enet_range_coder_create", dynlib: Lib.}
 proc enet_range_coder_destroy*(a2: pointer){.
