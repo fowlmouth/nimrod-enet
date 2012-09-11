@@ -481,10 +481,12 @@ proc getHost*(address: var TAddress; hostName: cstring; nameLength: csize): cint
 
 ## Call the above two funcs but trim the result string
 proc getHostIP*(address: var TAddress; hostName: var string; nameLength: csize): cint{.inline.} =
+  hostName.setLen nameLength
   result = getHostIP(address, cstring(hostName), nameLength)
   if result == 0:
     hostName.setLen(len(cstring(hostName)))
 proc getHost*(address: var TAddress; hostName: var string; nameLength: csize): cint{.inline.} =
+  hostName.setLen nameLength
   result = getHost(address, cstring(hostName), nameLength)
   if result == 0:
     hostName.setLen(len(cstring(hostName)))
