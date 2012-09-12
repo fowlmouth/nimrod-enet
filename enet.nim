@@ -21,7 +21,7 @@ when defined(Linux):
   const Lib = "libenet.so.1(|.0.3)"
 else:
   {.error: "Your platform has not been accounted for."}
-
+{.deadCodeElim: ON.}
 const 
   ENET_VERSION_MAJOR* = 1
   ENET_VERSION_MINOR* = 3
@@ -81,9 +81,9 @@ type
   
   PPacket* = ptr TPacket
   TPacket*{.pure, final.} = object 
-    referenceCount*: csize
-    flags*: cuint
-    data*: ptr cuchar
+    referenceCount: csize
+    flags*: cint
+    data*: cstring#ptr cuchar
     dataLength*: csize
     freeCallback*: TPacketFreeCallback
 
@@ -474,6 +474,8 @@ proc select*(socket: TEnetSocket; a3: ptr TENetSocketSet;
 
 proc setHost*(address: PAddress; hostName: cstring): cint{.
   importc: "enet_address_set_host", dynlib: Lib.}
+proc setHost*(address: var TAddress; hostName: cstring): cint{.
+  importc: "enet_address_set_host", dynlib: Lib.}
 proc getHostIP*(address: var TAddress; hostName: cstring; nameLength: csize): cint{.
   importc: "enet_address_get_host_ip", dynlib: Lib.}
 proc getHost*(address: var TAddress; hostName: cstring; nameLength: csize): cint{.
@@ -501,11 +503,13 @@ proc resize*(packet: PPacket; a3: csize): cint{.
 proc crc32*(buffer: ptr TEnetBuffer; a3: csize): cuint{.
   importc: "enet_crc32", dynlib: Lib.}
 
-proc createHost*(address: ptr TAddress; a3, a4: csize; a5, a6: cuint): PHost{.
+proc createHost*(address: ptr TAddress; maxConnections, maxChannels: csize; downSpeed, upSpeed: cuint): PHost{.
   importc: "enet_host_create", dynlib: Lib.}
 proc destroy*(host: PHost){.
   importc: "enet_host_destroy", dynlib: Lib.}
-proc connect*(host: PHost; address: ptr TAddress; a4: csize; a5: cuint): PPeer{.
+proc connect*(host: PHost; address: ptr TAddress; channelCount: csize; data: cuint): PPeer{.
+  importc: "enet_host_connect", dynlib: Lib.}
+proc connect*(host: PHost; address: var TAddress; channelCount: csize; data: cuint): PPeer{.
   importc: "enet_host_connect", dynlib: Lib.}
 
 proc checkEvents*(host: PHost; event: var TEvent): cint{.
@@ -528,7 +532,7 @@ proc bandwidthThrottle*(host: PHost){.
   importc: "enet_host_bandwidth_throttle", dynlib: Lib.}
 
 
-proc send*(peer: PPeer; a3: cuchar; a4: PPacket): cint{.
+proc send*(peer: PPeer; channel: cuchar; packet: PPacket): cint{.
   importc: "enet_peer_send", dynlib: Lib.}
 proc receive*(peer: PPeer; channelID: ptr cuchar): ptr TPacket{.
   importc: "enet_peer_receive", dynlib: Lib.}
