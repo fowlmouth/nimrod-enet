@@ -505,6 +505,8 @@ proc crc32*(buffer: ptr TEnetBuffer; a3: csize): cuint{.
 
 proc createHost*(address: ptr TAddress; maxConnections, maxChannels: csize; downSpeed, upSpeed: cuint): PHost{.
   importc: "enet_host_create", dynlib: Lib.}
+proc createHost*(address: var TAddress; maxConnections, maxChannels: csize; downSpeed, upSpeed: cuint): PHost{.
+  importc: "enet_host_create", dynlib: Lib.}
 proc destroy*(host: PHost){.
   importc: "enet_host_destroy", dynlib: Lib.}
 proc connect*(host: PHost; address: ptr TAddress; channelCount: csize; data: cuint): PPeer{.
