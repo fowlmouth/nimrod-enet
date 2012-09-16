@@ -273,6 +273,7 @@ when defined(Linux):
     ENET_SOCKET_NULL*: cint = -1
   type 
     TENetSocket* = cint
+    PEnetBuffer* = ptr object
     TENetBuffer*{.pure, final.} = object 
       data*: pointer
       dataLength*: csize
@@ -578,13 +579,12 @@ proc resetQueues*(peer: PPeer){.
 proc setupOutgoingCommand*(peer: PPeer; outgoingCommand: POutgoingCommand){.
   importc: "enet_peer_setup_outgoing_command", dynlib: Lib.}
 
-proc queueOutgoingCommand*(peer: PPeer; command: ptr TEnetProtocol; packet: PPacket; 
-                            offset: cuint; length: cushort): POutgoingCommand{.
+proc queueOutgoingCommand*(peer: PPeer; command: ptr TEnetProtocol; 
+          packet: PPacket; offset: cuint; length: cushort): POutgoingCommand{.
   importc: "enet_peer_queue_outgoing_command", dynlib: Lib.}
 proc queueIncomingCommand*(peer: PPeer; command: ptr TEnetProtocol; 
-                          packet: PPacket; fragmentCount: cuint): PIncomingCommand{.
+                    packet: PPacket; fragmentCount: cuint): PIncomingCommand{.
   importc: "enet_peer_queue_incoming_command", dynlib: Lib.}
-
 proc queueAcknowledgement*(peer: PPeer; command: ptr TEnetProtocol; 
                             sentTime: cushort): PAcknowledgement{.
   importc: "enet_peer_queue_acknowledgement", dynlib: Lib.}
@@ -593,18 +593,17 @@ proc dispatchIncomingUnreliableCommands*(peer: PPeer; channel: PChannel){.
 proc dispatchIncomingReliableCommands*(peer: PPeer; channel: PChannel){.
   importc: "enet_peer_dispatch_incoming_reliable_commands", dynlib: Lib.}
 
-
-proc enet_range_coder_create*(): pointer{.
+proc createRangeCoder*(): pointer{.
   importc: "enet_range_coder_create", dynlib: Lib.}
-proc enet_range_coder_destroy*(a2: pointer){.
+proc rangeCoderDestroy*(context: pointer){.
   importc: "enet_range_coder_destroy", dynlib: Lib.}
-proc enet_range_coder_compress*(a2: pointer; a3: ptr TEnetBuffer; a4: csize; 
-                                a5: csize; a6: ptr cuchar; a7: csize): csize{.
+proc rangeCoderCompress*(context: pointer; inBuffers: PEnetBuffer; inLimit, 
+               bufferCount: csize; outData: cstring; outLimit: csize): csize{.
   importc: "enet_range_coder_compress", dynlib: Lib.}
-proc enet_range_coder_decompress*(a2: pointer; a3: ptr cuchar; a4: csize; 
-                                  a5: ptr cuchar; a6: csize): csize{.
+proc rangeCoderDecompress*(context: pointer; inData: cstring; inLimit: csize; 
+                            outData: cstring; outLimit: csize): csize{.
   importc: "enet_range_coder_decompress", dynlib: Lib.}
-proc enet_protocol_command_size*(a2: cuchar): csize{.
+proc protocolCommandSize*(commandNumber: cuchar): csize{.
   importc: "enet_protocol_command_size", dynlib: Lib.}
 
 {.pop: cdecl.}
