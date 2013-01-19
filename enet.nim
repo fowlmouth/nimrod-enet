@@ -608,7 +608,7 @@ proc rangeCoderDecompress*(context: pointer; inData: cstring; inLimit: csize;
 proc protocolCommandSize*(commandNumber: cuchar): csize{.
   importc: "enet_protocol_command_size", dynlib: Lib.}
 
-{.pop cdecl.}
+{.pop.}
 
 from hashes import `!$`, `!&`, THash, hash
 proc hash*(x: TAddress): THash {.nimcall, noSideEffect.} =
