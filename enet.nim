@@ -436,7 +436,7 @@ type
     free*: proc (memory: pointer){.cdecl.}
     no_memory*: proc (){.cdecl.}
 
-{.push: cdecl.}
+{.push cdecl.}
 proc enet_malloc*(a2: csize): pointer{.
   importc: "enet_malloc", dynlib: Lib.}
 proc enet_free*(a2: pointer){.
@@ -456,6 +456,8 @@ proc enet_time_set*(a2: cuint){.
 #enet docs are pretty lacking, i'm not sure what the names of these arguments should be
 proc createSocket*(kind: TSocketType): TEnetSocket{.
   importc: "enet_socket_create", dynlib: Lib.}
+
+
 proc bindTo*(socket: TEnetSocket; address: var TAddress): cint{.
   importc: "enet_socket_bind", dynlib: Lib.}
 proc bindTo*(socket: TEnetSocket; address: ptr TAddress): cint{.
@@ -606,7 +608,7 @@ proc rangeCoderDecompress*(context: pointer; inData: cstring; inLimit: csize;
 proc protocolCommandSize*(commandNumber: cuchar): csize{.
   importc: "enet_protocol_command_size", dynlib: Lib.}
 
-{.pop: cdecl.}
+{.pop cdecl.}
 
 from hashes import `!$`, `!&`, THash, hash
 proc hash*(x: TAddress): THash {.nimcall, noSideEffect.} =
