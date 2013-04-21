@@ -1,0 +1,6 @@
+[Package]
+name = "enet"
+version = "1.0.3"
+author = "fowl"
+description = "enet wrapper"
+license = "MIT"
