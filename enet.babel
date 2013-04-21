@@ -2,5 +2,5 @@
 name = "enet"
 version = "1.0.3"
 author = "fowl"
-description = "enet wrapper"
+description = "Wrapper for ENet UDP networking library"
 license = "MIT"
