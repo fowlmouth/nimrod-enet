@@ -442,70 +442,78 @@ type
     free*: proc (memory: pointer){.cdecl.}
     no_memory*: proc (){.cdecl.}
 
-{.push cdecl.}
+{.pragma: ic, importc: "enet_$1".}
+{.push cdecl, dynlib: Lib.}
 proc enet_malloc*(a2: csize): pointer{.
-  importc: "enet_malloc", dynlib: Lib.}
+  importc: "enet_malloc".}
 proc enet_free*(a2: pointer){.
-  importc: "enet_free", dynlib: Lib.}
+  importc: "enet_free".}
 
-proc enetInit*(): cint{.
-  importc: "enet_initialize", dynlib: Lib.}
-proc enetInit*(version: TVersion; inits: ptr TENetCallbacks): cint{.
-  importc: "enet_initialize_with_callbacks", dynlib: Lib.}
-proc enetDeinit*(){.
-  importc: "enet_deinitialize", dynlib: Lib.}
-proc enet_time_get*(): cuint{.
-  importc: "enet_time_get", dynlib: Lib.}
-proc enet_time_set*(a2: cuint){.
-  importc: "enet_time_set", dynlib: Lib.}
+proc initialize* : cint {.ic.}
+proc initialize* (version: TVersion; inits: ptr TEnetCallbacks): cint {.
+  importc: "enet_initialize_with_callbacks".}
+proc deinitialize* {.ic.}
+proc time_get*: cuint {.ic.}
+proc time_set* (time: cuint) {.ic.}
+
+proc enetInit*(): cint{.deprecated,
+  importc: "enet_initialize".}
+proc enetInit*(version: TVersion; inits: ptr TENetCallbacks): cint{.deprecated,
+  importc: "enet_initialize_with_callbacks".}
+proc enetDeinit*(){.deprecated,
+  importc: "enet_deinitialize".}
+proc enet_time_get*(): cuint{.deprecated,
+  importc: "enet_time_get".}
+proc enet_time_set*(a2: cuint){.deprecated,
+  importc: "enet_time_set".}
 
 #enet docs are pretty lacking, i'm not sure what the names of these arguments should be
 proc createSocket*(kind: TSocketType): TEnetSocket{.
-  importc: "enet_socket_create", dynlib: Lib.}
+  importc: "enet_socket_create".}
 
 
 proc bindTo*(socket: TEnetSocket; address: var TAddress): cint{.
-  importc: "enet_socket_bind", dynlib: Lib.}
+  importc: "enet_socket_bind".}
 proc bindTo*(socket: TEnetSocket; address: ptr TAddress): cint{.
-  importc: "enet_socket_bind", dynlib: Lib.}
+  importc: "enet_socket_bind".}
 proc listen*(socket: TEnetSocket; a3: cint): cint{.
-  importc: "enet_socket_listen", dynlib: Lib.}
+  importc: "enet_socket_listen".}
 proc accept*(socket: TEnetSocket; address: var TAddress): TEnetSocket{.
-  importc: "enet_socket_accept", dynlib: Lib.}
+  importc: "enet_socket_accept".}
 proc accept*(socket: TEnetSocket; address: ptr TAddress): TEnetSocket{.
-  importc: "enet_socket_accept", dynlib: Lib.}
+  importc: "enet_socket_accept".}
 proc connect*(socket: TEnetSocket; address: var TAddress): cint{.
-  importc: "enet_socket_connect", dynlib: Lib.}
+  importc: "enet_socket_connect".}
 proc connect*(socket: TEnetSocket; address: ptr TAddress): cint{.
-  importc: "enet_socket_connect", dynlib: Lib.}
+  importc: "enet_socket_connect".}
 proc send*(socket: TEnetSocket; address: var TAddress; buffer: ptr TEnetBuffer; size: csize): cint{.
-  importc: "enet_socket_send", dynlib: Lib.}
+  importc: "enet_socket_send".}
 proc send*(socket: TEnetSocket; address: ptr TAddress; buffer: ptr TEnetBuffer; size: csize): cint{.
-  importc: "enet_socket_send", dynlib: Lib.}
+  importc: "enet_socket_send".}
 proc receive*(socket: TEnetSocket; address: var TAddress; 
                buffer: ptr TEnetBuffer; size: csize): cint{.
-  importc: "enet_socket_receive", dynlib: Lib.}
+  importc: "enet_socket_receive".}
 proc receive*(socket: TEnetSocket; address: ptr TAddress; 
                buffer: ptr TEnetBuffer; size: csize): cint{.
-  importc: "enet_socket_receive", dynlib: Lib.}
+  importc: "enet_socket_receive".}
 proc wait*(socket: TEnetSocket; a3: ptr cuint; a4: cuint): cint{.
-  importc: "enet_socket_wait", dynlib: Lib.}
+  importc: "enet_socket_wait".}
 proc setOption*(socket: TEnetSocket; a3: TSocketOption; a4: cint): cint{.
-  importc: "enet_socket_set_option", dynlib: Lib.}
+  importc: "enet_socket_set_option".}
 proc destroy*(socket: TEnetSocket){.
-  importc: "enet_socket_destroy", dynlib: Lib.}
+  importc: "enet_socket_destroy".}
 proc select*(socket: TEnetSocket; a3: ptr TENetSocketSet; 
               a4: ptr TENetSocketSet; a5: cuint): cint{.
-  importc: "enet_socketset_select", dynlib: Lib.}
+  importc: "enet_socketset_select".}
 
 proc setHost*(address: PAddress; hostName: cstring): cint{.
-  importc: "enet_address_set_host", dynlib: Lib.}
+  importc: "enet_address_set_host".}
 proc setHost*(address: var TAddress; hostName: cstring): cint{.
-  importc: "enet_address_set_host", dynlib: Lib.}
+  importc: "enet_address_set_host".}
 proc getHostIP*(address: var TAddress; hostName: cstring; nameLength: csize): cint{.
-  importc: "enet_address_get_host_ip", dynlib: Lib.}
+  importc: "enet_address_get_host_ip".}
 proc getHost*(address: var TAddress; hostName: cstring; nameLength: csize): cint{.
-  importc: "enet_address_get_host", dynlib: Lib.}
+  importc: "enet_address_get_host".}
 
 ## Call the above two funcs but trim the result string
 proc getHostIP*(address: var TAddress; hostName: var string; nameLength: csize): cint{.inline.} =
@@ -520,99 +528,102 @@ proc getHost*(address: var TAddress; hostName: var string; nameLength: csize): c
     hostName.setLen(len(cstring(hostName)))
 
 proc createPacket*(data: pointer; len: csize; flag: TPacketFlag): PPacket{.
-  importc: "enet_packet_create", dynlib: Lib.}
+  importc: "enet_packet_create".}
+proc createPacket*(data: string; flag: TPacketFlag): PPacket {.
+  inline.} = createPacket(data.cstring, data.len + 1, flag)
+
 proc destroy*(packet: PPacket){.
-  importc: "enet_packet_destroy", dynlib: Lib.}
+  importc: "enet_packet_destroy".}
 proc resize*(packet: PPacket; dataLength: csize): cint{.
-  importc: "enet_packet_resize", dynlib: Lib.}
+  importc: "enet_packet_resize".}
 
 proc crc32*(buffers: ptr TEnetBuffer; bufferCount: csize): cuint{.
-  importc: "enet_crc32", dynlib: Lib.}
+  importc: "enet_crc32".}
 
 proc createHost*(address: ptr TAddress; maxConnections, maxChannels: csize; downSpeed, upSpeed: cuint): PHost{.
-  importc: "enet_host_create", dynlib: Lib.}
+  importc: "enet_host_create".}
 proc createHost*(address: var TAddress; maxConnections, maxChannels: csize; downSpeed, upSpeed: cuint): PHost{.
-  importc: "enet_host_create", dynlib: Lib.}
+  importc: "enet_host_create".}
 proc destroy*(host: PHost){.
-  importc: "enet_host_destroy", dynlib: Lib.}
+  importc: "enet_host_destroy".}
 proc connect*(host: PHost; address: ptr TAddress; channelCount: csize; data: cuint): PPeer{.
-  importc: "enet_host_connect", dynlib: Lib.}
+  importc: "enet_host_connect".}
 proc connect*(host: PHost; address: var TAddress; channelCount: csize; data: cuint): PPeer{.
-  importc: "enet_host_connect", dynlib: Lib.}
+  importc: "enet_host_connect".}
 
 proc checkEvents*(host: PHost; event: var TEvent): cint{.
-  importc: "enet_host_check_events", dynlib: Lib.}
+  importc: "enet_host_check_events".}
 proc checkEvents*(host: PHost; event: ptr TEvent): cint{.
-  importc: "enet_host_check_events", dynlib: Lib.}
+  importc: "enet_host_check_events".}
 proc hostService*(host: PHost; event: var TEvent; timeout: cuint): cint{.
-  importc: "enet_host_service", dynlib: Lib.}
+  importc: "enet_host_service".}
 proc hostService*(host: PHost; event: ptr TEvent; timeout: cuint): cint{.
-  importc: "enet_host_service", dynlib: Lib.}
+  importc: "enet_host_service".}
 proc flush*(host: PHost){.
-  importc: "enet_host_flush", dynlib: Lib.}
+  importc: "enet_host_flush".}
 proc broadcast*(host: PHost; channelID: cuchar; packet: PPacket){.
-  importc: "enet_host_broadcast", dynlib: Lib.}
+  importc: "enet_host_broadcast".}
 proc compress*(host: PHost; compressor: PCompressor){.
-  importc: "enet_host_compress", dynlib: Lib.}
+  importc: "enet_host_compress".}
 proc compressWithRangeCoder*(host: PHost): cint{.
-  importc: "enet_host_compress_with_range_coder", dynlib: Lib.}
+  importc: "enet_host_compress_with_range_coder".}
 proc channelLimit*(host: PHost; channelLimit: csize){.
-  importc: "enet_host_channel_limit", dynlib: Lib.}
+  importc: "enet_host_channel_limit".}
 proc bandwidthLimit*(host: PHost; incoming, outgoing: cuint){.
-  importc: "enet_host_bandwidth_limit", dynlib: Lib.}
+  importc: "enet_host_bandwidth_limit".}
 proc bandwidthThrottle*(host: PHost){.
-  importc: "enet_host_bandwidth_throttle", dynlib: Lib.}
+  importc: "enet_host_bandwidth_throttle".}
 
 
 proc send*(peer: PPeer; channel: cuchar; packet: PPacket): cint{.
-  importc: "enet_peer_send", dynlib: Lib.}
+  importc: "enet_peer_send".}
 proc receive*(peer: PPeer; channelID: ptr cuchar): PPacket{.
-  importc: "enet_peer_receive", dynlib: Lib.}
+  importc: "enet_peer_receive".}
 proc ping*(peer: PPeer){.
-  importc: "enet_peer_ping", dynlib: Lib.}
+  importc: "enet_peer_ping".}
 proc reset*(peer: PPeer){.
-  importc: "enet_peer_reset", dynlib: Lib.}
+  importc: "enet_peer_reset".}
 proc disconnect*(peer: PPeer; a3: cuint){.
-  importc: "enet_peer_disconnect", dynlib: Lib.}
+  importc: "enet_peer_disconnect".}
 proc disconnectNow*(peer: PPeer; a3: cuint){.
-  importc: "enet_peer_disconnect_now", dynlib: Lib.}
+  importc: "enet_peer_disconnect_now".}
 proc disconnectLater*(peer: PPeer; a3: cuint){.
-  importc: "enet_peer_disconnect_later", dynlib: Lib.}
+  importc: "enet_peer_disconnect_later".}
 proc throttleConfigure*(peer: PPeer; interval, acceleration, deceleration: cuint){.
-  importc: "enet_peer_throttle_configure", dynlib: Lib.}
+  importc: "enet_peer_throttle_configure".}
 proc throttle*(peer: PPeer; rtt: cuint): cint{.
-  importc: "enet_peer_throttle", dynlib: Lib.}
+  importc: "enet_peer_throttle".}
 proc resetQueues*(peer: PPeer){.
-  importc: "enet_peer_reset_queues", dynlib: Lib.}
+  importc: "enet_peer_reset_queues".}
 proc setupOutgoingCommand*(peer: PPeer; outgoingCommand: POutgoingCommand){.
-  importc: "enet_peer_setup_outgoing_command", dynlib: Lib.}
+  importc: "enet_peer_setup_outgoing_command".}
 
 proc queueOutgoingCommand*(peer: PPeer; command: ptr TEnetProtocol; 
           packet: PPacket; offset: cuint; length: cushort): POutgoingCommand{.
-  importc: "enet_peer_queue_outgoing_command", dynlib: Lib.}
+  importc: "enet_peer_queue_outgoing_command".}
 proc queueIncomingCommand*(peer: PPeer; command: ptr TEnetProtocol; 
                     packet: PPacket; fragmentCount: cuint): PIncomingCommand{.
-  importc: "enet_peer_queue_incoming_command", dynlib: Lib.}
+  importc: "enet_peer_queue_incoming_command".}
 proc queueAcknowledgement*(peer: PPeer; command: ptr TEnetProtocol; 
                             sentTime: cushort): PAcknowledgement{.
-  importc: "enet_peer_queue_acknowledgement", dynlib: Lib.}
+  importc: "enet_peer_queue_acknowledgement".}
 proc dispatchIncomingUnreliableCommands*(peer: PPeer; channel: PChannel){.
-  importc: "enet_peer_dispatch_incoming_unreliable_commands", dynlib: Lib.}
+  importc: "enet_peer_dispatch_incoming_unreliable_commands".}
 proc dispatchIncomingReliableCommands*(peer: PPeer; channel: PChannel){.
-  importc: "enet_peer_dispatch_incoming_reliable_commands", dynlib: Lib.}
+  importc: "enet_peer_dispatch_incoming_reliable_commands".}
 
 proc createRangeCoder*(): pointer{.
-  importc: "enet_range_coder_create", dynlib: Lib.}
+  importc: "enet_range_coder_create".}
 proc rangeCoderDestroy*(context: pointer){.
-  importc: "enet_range_coder_destroy", dynlib: Lib.}
+  importc: "enet_range_coder_destroy".}
 proc rangeCoderCompress*(context: pointer; inBuffers: PEnetBuffer; inLimit, 
                bufferCount: csize; outData: cstring; outLimit: csize): csize{.
-  importc: "enet_range_coder_compress", dynlib: Lib.}
+  importc: "enet_range_coder_compress".}
 proc rangeCoderDecompress*(context: pointer; inData: cstring; inLimit: csize; 
                             outData: cstring; outLimit: csize): csize{.
-  importc: "enet_range_coder_decompress", dynlib: Lib.}
+  importc: "enet_range_coder_decompress".}
 proc protocolCommandSize*(commandNumber: cuchar): csize{.
-  importc: "enet_protocol_command_size", dynlib: Lib.}
+  importc: "enet_protocol_command_size".}
 
 {.pop.}
 
