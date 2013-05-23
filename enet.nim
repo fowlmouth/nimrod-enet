@@ -87,7 +87,7 @@ type
   
   PPacket* = ptr TPacket
   TPacket*{.pure, final.} = object 
-    referenceCount: csize
+    referenceCount*: int32
     flags*: cint
     data*: cstring#ptr cuchar
     dataLength*: csize
