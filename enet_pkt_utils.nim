@@ -67,11 +67,11 @@ proc writeBE*[T: char|int8|uint8|byte|bool](buffer: PBuffer; val: var T) =
   inc buffer.pos, 1
 
 
-proc write*(buffer: PBuffer; val: var string) =
+proc write* (buffer: PBuffer; val: string) =
   var length = len(val).uint16
   writeBE buffer, length
   setLen buffer, buffer.pos + length.int
-  copyMem(addr buffer.data[buffer.pos], addr val[0], length.int)
+  copyMem buffer.data[buffer.pos].addr, val.cstring, length.int
   inc buffer.pos, length.int
 proc write*[T: TNumber|bool|char|byte](buffer: PBuffer; val: T) =
   var v: T
