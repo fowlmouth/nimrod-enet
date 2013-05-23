@@ -15,8 +15,8 @@ else:
   proc littleEndian16*(outp, inp: pointer){.inline.} = copyMem(outp, inp, 2)
 
 type
-  PBuffer = var TBuffer
-  TBuffer = object
+  PBuffer* = var TBuffer
+  TBuffer* = object
     data: string
     pos*: int
 
