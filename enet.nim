@@ -87,7 +87,7 @@ type
   
   PPacket* = ptr TPacket
   TPacket*{.pure, final.} = object 
-    referenceCount*: int32
+    referenceCount*: csize
     flags*: cint
     data*: cstring#ptr cuchar
     dataLength*: csize
@@ -432,10 +432,10 @@ type
   PEvent* = ptr TEvent
   TEvent*{.pure, final.} = object 
     kind*: TEventType
-    peer*: ptr TPeer
-    channelID*: cuchar
-    data*: cuint
-    packet*: ptr TPacket
+    peer*: PPeer
+    channelID*: int8
+    data*: int32
+    packet*: PPacket
 
   TENetCallbacks*{.pure, final.} = object 
     malloc*: proc (size: csize): pointer{.cdecl.}
@@ -527,7 +527,9 @@ proc getHost*(address: var TAddress; hostName: var string; nameLength: csize): c
   if result == 0:
     hostName.setLen(len(cstring(hostName)))
 
-proc createPacket*(data: pointer; len: csize; flag: TPacketFlag): PPacket{.
+converter toCINT * (some: TPacketFlag): cint = some.cint
+
+proc createPacket*(data: pointer; len: csize; flag: cint): PPacket{.
   importc: "enet_packet_create".}
 proc createPacket*(data: string; flag: TPacketFlag): PPacket {.
   inline.} = createPacket(data.cstring, data.len + 1, flag)
