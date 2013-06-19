@@ -531,8 +531,14 @@ converter toCINT * (some: TPacketFlag): cint = some.cint
 
 proc createPacket*(data: pointer; len: csize; flag: cint): PPacket{.
   importc: "enet_packet_create".}
-proc createPacket*(data: string; flag: TPacketFlag): PPacket {.
+proc createPacket*(data: string; flag: cint): PPacket {.
   inline.} = createPacket(data.cstring, data.len + 1, flag)
+
+from macros import nestList, newCall, `!`
+macro shallowPacket* (data: pointer; len: int; flags: set[TPacketFlag]): expr =
+  let flags_n = nestList(!"or", flags)
+  result = newCall("enet.createPacket", data, len, flags_n)
+  
 
 proc destroy*(packet: PPacket){.
   importc: "enet_packet_destroy".}
