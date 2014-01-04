@@ -106,13 +106,13 @@ template incBuffer (buffer, by; body: stmt): stmt =
 proc writeLE*[T: int8|uint8|byte|bool|char] (buf: PBuffer; val: var T) =
   incBuffer(buf, 1): copyMem(buf.curPos.addr, val.addr, 1)
 proc writeLE*[U: int16|uint16] (buf: PBuffer; val: var U) = 
-  incBuffer(buf, 2): littleEndian16(buf.curPos.addr, val.addr, 2)
+  incBuffer(buf, 2): littleEndian16(buf.curPos.addr, val.addr)
 proc writeLE*[V: int32|uint32|float32] (buf: PBuffer; val: var V) =
-  incBuffer(buf, 4): littleEndian32(buf.curPos.addr, val.addr, 4)
+  incBuffer(buf, 4): littleEndian32(buf.curPos.addr, val.addr)
 proc writeLE* (buf: PBuffer; val: string) =
   var L = val.len.int16
   buf.writeLE L
-  incBuffer(buf, val.len): copyMem buf.curPos.addr, valString.cstring, val.len 
+  incBuffer(buf, val.len): copyMem buf.curPos.addr, val.cstring, val.len 
 
 proc writeBE*[T:   int8| uint8|byte|bool|char](buffer: PBuffer; val: var T) =
   setLen buffer, buffer.pos + 1
