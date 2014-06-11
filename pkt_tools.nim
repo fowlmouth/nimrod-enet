@@ -1,5 +1,5 @@
 
-import unsigned, endians
+import unsigned, endians, typetraits
 when defined(useEnet):
   import enet
 when defined(useLacewing):
@@ -12,30 +12,38 @@ when defined(networkBigEndian):
   template ne16 (a,b): expr = bigEndian16(a,b)
   template ne32 (a,b): expr = bigEndian32(a,b)
   template ne64 (a,b): expr = bigEndian64(a,b)
-else:
+elif true or defined(networkLittleEndian):
   template ne16 (a,b): expr = littleEndian16(a,b)
   template ne32 (a,b): expr = littleEndian32(a,b)
   template ne64 (a,b): expr = littleEndian64(a,b)
 
-
-type TScalar* = int8 | uint8 | byte | char | bool |
-                int16| uint16| int32|uint32|
-                float32|float64|int64|uint64
-
+type 
+  TScalar* = int8 | uint8 | byte | char | bool |
+             int16| uint16| int32|uint32|
+             float32|float64|int64|uint64
+  EShortPacket* = object of EBase
 type
   PIpkt* = var Ipkt
   Ipkt*  = object
     data: cstring
-    index, dataSize: int
-proc to_ipkt* (dat:cstring,size:TInteger): IPkt =
+    index*, dataSize*: int
+proc initIpkt* (dat:cstring,size:TInteger): IPkt =
   IPkt(data:dat, index:0, dataSize:size.int)
 when defined(useEnet):
-  proc to_ipkt* (P:PPacket): IPkt =
-    to_ipkt(p.data, p.dataLength)
+  proc initIpkt* (P:PPacket): IPkt =
+    initIpkt(p.data, p.dataLength)
+
+proc data0* (pkt:PIpkt): ptr char = pkt.data[0].addr
+
+template test_pkt (pkt; right; size): stmt =
+  if pkt.dataSize - pkt.index < size:
+    raise newException(EShortPacket, "Not enough bytes in the packet for "& name(type(right))) 
 
 proc `>>`* [T: TScalar] (pkt:PIpkt; right:var T) = 
-  template data: expr = pkt.data[pkt.index].addr
   const sizeT = sizeof(T)
+  test_pkt(pkt, right, sizeT)
+  
+  template data: expr = pkt.data[pkt.index].addr
   when sizeT == 2:
     ne16(right.addr, data)
   elif sizeT == 4:
@@ -45,17 +53,18 @@ proc `>>`* [T: TScalar] (pkt:PIpkt; right:var T) =
   elif sizeT == 1:
     right = cast[ptr t](data)[]
   
-  pkt.index.inc sizeof(T)
+  pkt.index.inc sizeT
 
 proc `>>`* (pkt:PIpkt; right:var string) = 
   var len: int16
   pkt >> len
+  test_pkt pkt, right, len
   if right.isNil: right = newString(len)
   else:           right.setLen len.int
   copyMem(right.cstring, pkt.data[pkt.index].addr, len)
   pkt.index.inc len
 
-proc `>>`* [T:TScalar] (pkt:PIpkt; right:var seq[T])=
+proc `>>`* [T] (pkt:PIpkt; right:var seq[T])=
   mixin `>>`
   var len: int16
   pkt >> len
@@ -73,6 +82,7 @@ proc `>>`* [T] (pkt:PIpkt; right:var openarray[T]) =
 
 
 type
+  POpkt* = var OPkt
   OPkt* = object
     bytes: seq[char]
     index*: int
