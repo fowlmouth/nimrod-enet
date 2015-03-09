@@ -25,6 +25,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 when defined(Linux):
   const Lib = "libenet.so"#.1(|.0.3)"
+elif defined(Windows):
+  const Lib = "enet.dll"
 else:
   {.error: "Your platform has not been accounted for."}
 {.deadCodeElim: ON.}
@@ -279,7 +281,6 @@ when defined(Linux):
     ENET_SOCKET_NULL*: cint = -1
   type 
     TENetSocket* = cint
-    PEnetBuffer* = ptr object
     TENetBuffer*{.pure, final.} = object 
       data*: pointer
       dataLength*: csize
@@ -303,11 +304,40 @@ when defined(Linux):
   template ENET_SOCKETSET_CHECK*(sockset, socket: expr): expr = 
     FD_ISSET(socket, addr((sockset)))
 
-when defined(Windows):
+elif defined(Windows):
   ## put the content of win32.h in here
+  import winlean
+  let ENET_SOCKET_NULL*: cint = INVALID_SOCKET
+  type
+    TENetSocket* = winlean.SocketHandle
+    TEnetBuffer* = object
+      dataLength*: csize #these fields are flipped for win32, i'm sure theres a good reason for it
+      data*: pointer
+    TENetSocketSet* = Tfd_set
+
+  template ENET_HOST_TO_NET_16*(value: expr): expr = 
+    (htons(value))
+  template ENET_HOST_TO_NET_32*(value: expr): expr = 
+    (htonl(value))
+  template ENET_NET_TO_HOST_16*(value: expr): expr = 
+    (ntohs(value))
+  template ENET_NET_TO_HOST_32*(value: expr): expr = 
+    (ntohl(value))
+
+  template ENET_SOCKETSET_EMPTY*(sockset: expr): expr = 
+    FD_ZERO(addr((sockset)))
+  template ENET_SOCKETSET_ADD*(sockset, socket: expr): expr = 
+    FD_SET(socket, addr((sockset)))
+  # FD_CLR not found in winlean? 
+  template ENET_SOCKETSET_REMOVE*(sockset, socket: expr): expr = 
+    FD_CLR(socket, addr((sockset)))
+  template ENET_SOCKETSET_CHECK*(sockset, socket: expr): expr = 
+    FD_ISSET(socket, addr((sockset)))
 
 
 type 
+  PEnetBuffer* = ptr TEnetBuffer
+
   PChannel* = ptr TChannel
   TChannel*{.pure, final.} = object 
     outgoingReliableSequenceNumber*: cushort
