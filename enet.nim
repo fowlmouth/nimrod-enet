@@ -24,12 +24,12 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 when defined(Linux):
-  const Lib = "libenet.so"#.1(|.0.3)"
+  const Lib = "libenet.so(|.7)"#.1(|.0.3)"
 elif defined(Windows):
   const Lib = "enet.dll"
 else:
   {.error: "Your platform has not been accounted for."}
-{.deadCodeElim: ON.}
+{.deadCodeElim: on.}
 const 
   ENET_VERSION_MAJOR* = 1
   ENET_VERSION_MINOR* = 3
