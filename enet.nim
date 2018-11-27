@@ -307,7 +307,7 @@ when defined(Linux):
 elif defined(Windows):
   ## put the content of win32.h in here
   import winlean
-  let ENET_SOCKET_NULL*: cint = INVALID_SOCKET
+  let ENET_SOCKET_NULL*: cint = INVALID_SOCKET.cint
   type
     TENetSocket* = winlean.SocketHandle
     TEnetBuffer* = object
